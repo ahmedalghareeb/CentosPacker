@@ -1,0 +1,85 @@
+#version=DEVEL
+# System authorization information
+auth --enableshadow --passalgo=sha512
+# Use CDROM installation media
+cdrom
+
+ignoredisk --only-use=sda
+# Keyboard layouts
+keyboard --vckeymap=us --xlayouts='us'
+# System language
+lang en_US.UTF-8
+
+# Network information
+network  --bootproto=dhcp --device=eth0 --ipv6=auto --activate
+network  --hostname=localhost.localdomain
+
+# Root password
+rootpw --iscrypted $6$occ5h2K3Ump2Y8Ul$8i6.mfT91AKq6Ma0ockbzeyICeHFfyinqdy9N7x2qEhGvagBbPG5l5cRXCoyF3lkDZjT8I7TesV9aFOqxvELU/
+# System services
+services --enabled="chronyd"
+# System timezone
+timezone America/Toronto --isUtc
+user --groups=wheel --name=vagrant --password=$6$qNcdU1RCHKNkNS7b$wb2fLe3qvhr/Envvca9ce5.iGRxe6MSKdbGgoVEk19mA4pquux6iVugnJ/Ule50SToI8qO8bVbEd.XPtu/Lif. --iscrypted --gecos="vagrant"
+# X Window System configuration information
+xconfig  --startxonboot
+# System bootloader configuration
+bootloader --append=" crashkernel=auto" --location=mbr --boot-drive=sda
+autopart --type=lvm
+# Partition clearing information
+clearpart --none --initlabel
+
+%packages
+@^graphical-server-environment
+@base
+@core
+@desktop-debugging
+@development
+@dial-up
+@fonts
+@gnome-desktop
+@guest-agents
+@guest-desktop-agents
+@hardware-monitoring
+@input-methods
+@internet-browser
+@java-platform
+@multimedia
+@print-client
+@virtualization-client
+@virtualization-hypervisor
+@virtualization-tools
+@x11
+chrony
+kexec-tools
+ntp 
+cryptsetup
+cifs-utils
+zip
+unzip
+git
+net-tools
+java-1.8.0-openjdk
+java-11-openjdk
+openssl-devel
+readline-devel
+zlib-devel
+nfs-utils
+%end
+
+%addon com_redhat_kdump --enable --reserve-mb='auto'
+
+%end
+
+%post
+cat > /etc/cron.d/ntpdate < /dev/null 2>&1
+EOF
+echo 'vagrant ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/vagrant
+%end
+
+
+%anaconda
+pwpolicy root --minlen=6 --minquality=1 --notstrict --nochanges --notempty
+pwpolicy user --minlen=6 --minquality=1 --notstrict --nochanges --emptyok
+pwpolicy luks --minlen=6 --minquality=1 --notstrict --nochanges --notempty
+%end
